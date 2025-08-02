@@ -1,1 +1,1 @@
-web: gunicorn start:app --bind 0.0.0.0:8080
+web: echo "🟢 تم تنفيذ ملف الـ Procfile" && sleep 300
