@@ -1,37 +1,59 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # تأكد من استيراد CORS
+import threading
+import asyncio
+import aiohttp
+import random
+import os
 
+try:
+    os.system("cls")
+except:
+    os.system("clear")
+
+# تشغيل سيرفر Flask
 app = Flask(__name__)
-CORS(app)  # تمكين CORS لجميع المسارات
 
 @app.route('/')
-def index():
-    print("Route '/' was accessed")
-    return "Hello from Flask!"
+def health_check():
+    return "OK", 200
 
-@app.route('/جمع')
-def جمع_الأرقام():
-    # استقبال الرقمين من الطلب
-    رقم1 = request.args.get('رقم1')
-    رقم2 = request.args.get('رقم2')
-    
-    # التحقق من وجود القيم
-    if not رقم1 or not رقم2:
-        return jsonify({"خطأ": "يجب إرسال رقمين في الطلب"}), 400
-    
-    # التحقق من أن القيم رقمية
+@app.route('/sum', methods=['GET'])
+def sum_numbers():
     try:
-        رقم1 = float(رقم1)
-        رقم2 = float(رقم2)
-    except ValueError:
-        return jsonify({"خطأ": "يجب أن تكون القيم أرقاماً"}), 400
-    
-    # حساب النتيجة وإرجاعها
-    الناتج = رقم1 + رقم2
-    return jsonify({"النتيجة": الناتج})
+        a = float(request.args.get('a', 0))
+        b = float(request.args.get('b', 0))
+        result = a + b
+        return jsonify({"result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8080)
+def run_server():
+    app.run(host="0.0.0.0", port=8080)
 
+threading.Thread(target=run_server, daemon=True).start()
 
+# ------------------- #
+# دالة keep_alive اللي بتعمل ping لموقع خارجي
+# ------------------- #
+async def keep_alive():
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://google.com") as response:
+                    print(f"✅ Ping Google: {response.status}")
+        except Exception as e:
+            print(f"❌ Error: {e}")
+        
+        wait = random.randint(300, 600)
+        print(f"⏳ Waiting {wait} seconds...")
+        await asyncio.sleep(wait)
 
+# ------------------- #
+# Main async event loop
+# ------------------- #
+async def main():
+    print("🚀 Flask API for adding numbers is running!")
+    await keep_alive()
+
+if __name__ == "__main__":
+    asyncio.run(main())
