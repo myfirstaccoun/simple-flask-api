@@ -4,6 +4,11 @@ from flask_cors import CORS  # تأكد من استيراد CORS
 app = Flask(__name__)
 CORS(app)  # تمكين CORS لجميع المسارات
 
+@app.route('/')
+def index():
+    print("Route '/' was accessed")
+    return "Hello from Flask!"
+
 @app.route('/جمع')
 def جمع_الأرقام():
     # استقبال الرقمين من الطلب
@@ -27,4 +32,5 @@ def جمع_الأرقام():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+
 
